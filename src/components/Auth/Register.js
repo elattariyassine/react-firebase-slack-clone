@@ -16,8 +16,49 @@ class Register extends React.Component {
       username: '',
       email: '',
       password: '',
-      passwordConfirmation: ''
+      passwordConfirmation: '',
+      errors: []
   };
+
+  isFormValid = () => {
+    let errors = [];
+    let error;
+
+    if (this.isFormEmpty(this.state)) {
+      error = { message: "Fill in all fields" };
+      this.setState({ errors: errors.concat(error) });
+      return false;
+    } else if (!this.isPasswordValid(this.state)) {
+      error = { message: "Password is invalid" };
+      this.setState({ errors: errors.concat(error) });
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  isFormEmpty = ({ username, email, password, passwordConfirmation }) => {
+    return (
+      !username.length ||
+      !email.length ||
+      !password.length ||
+      !passwordConfirmation.length
+    );
+  };
+
+  isPasswordValid = ({ password, passwordConfirmation }) => {
+    if (password.length < 6 || passwordConfirmation.length < 6) {
+      return false;
+    } else if (password !== passwordConfirmation) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  displayErrors = errors =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
+
 
   handleChange = evt => {
     this.setState({
@@ -26,8 +67,9 @@ class Register extends React.Component {
   };
 
   handleSubmit = event => {
-    event.preventDefault();
-    firebase
+    if (this.isFormValid()) {
+        event.preventDefault();
+        firebase
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then(createdUser => {
@@ -36,6 +78,7 @@ class Register extends React.Component {
         .catch(error => {
             console.log(error);
         });
+    }
   }
 
   render() {
@@ -98,6 +141,12 @@ class Register extends React.Component {
               </Button>
             </Segment>
           </Form>
+          {this.state.errors.length > 0 && (
+            <Message error>
+              <h3>Error</h3>
+              {this.displayErrors(this.state.errors)}
+            </Message>
+          )}
           <Message>
             Already a user? <Link to="/login">Login</Link>
           </Message>
