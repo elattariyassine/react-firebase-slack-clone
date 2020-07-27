@@ -1,4 +1,5 @@
 import React from "react";
+import firebase from '../../firebase';
 import {
   Grid,
   Form,
@@ -11,11 +12,34 @@ import {
 import { Link } from "react-router-dom";
 
 class Register extends React.Component {
-  state = {};
+  state = {
+      username: '',
+      email: '',
+      password: '',
+      passwordConfirmation: ''
+  };
 
-  handleChange = () => {};
+  handleChange = evt => {
+    this.setState({
+        [evt.target.name]: evt.target.value
+    });
+  };
+
+  handleSubmit = event => {
+    event.preventDefault();
+    firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.state.email, this.state.password)
+        .then(createdUser => {
+            console.log(createdUser);
+        })
+        .catch(error => {
+            console.log(error);
+        });
+  }
 
   render() {
+    const {username, email, password, passwordConfirmation} = this.state;
     return (
       <Grid textAlign="center" verticalAlign="middle" className="app">
         <Grid.Column style={{ maxWidth: 450 }}>
@@ -23,7 +47,7 @@ class Register extends React.Component {
             <Icon name="code" color="blue" />
             Register for DevChat
           </Header>
-          <Form size="large">
+          <Form size="large" onSubmit={this.handleSubmit}>
             <Segment stacked>
               <Form.Input
                 fluid
@@ -32,6 +56,7 @@ class Register extends React.Component {
                 iconPosition="left"
                 placeholder="Username"
                 onChange={this.handleChange}
+                value={username}
                 type="text"
               />
 
@@ -41,6 +66,7 @@ class Register extends React.Component {
                 icon="mail"
                 iconPosition="left"
                 placeholder="Email Address"
+                value={email}
                 onChange={this.handleChange}
                 type="email"
               />
@@ -51,6 +77,7 @@ class Register extends React.Component {
                 icon="lock"
                 iconPosition="left"
                 placeholder="Password"
+                value={password}
                 onChange={this.handleChange}
                 type="password"
               />
@@ -61,6 +88,7 @@ class Register extends React.Component {
                 icon="repeat"
                 iconPosition="left"
                 placeholder="Password Confirmation"
+                value={passwordConfirmation}
                 onChange={this.handleChange}
                 type="password"
               />
