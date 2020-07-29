@@ -17,7 +17,8 @@ class Register extends React.Component {
       email: '',
       password: '',
       passwordConfirmation: '',
-      errors: []
+      errors: [],
+      loading: false
   };
 
   isFormValid = () => {
@@ -67,22 +68,29 @@ class Register extends React.Component {
   };
 
   handleSubmit = event => {
+    event.preventDefault();
     if (this.isFormValid()) {
-        event.preventDefault();
+        this.setState({errors:[] ,loading: true});
         firebase
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then(createdUser => {
             console.log(createdUser);
+            this.setState({loading: false});
         })
         .catch(error => {
-            console.log(error);
+          console.log(error);
+          this.setState({loading: false, errors: this.state.errors.concat(error)});
         });
     }
   }
 
+handleInputError = (errors, inputName) => {
+  return errors.some(item => item.message.toLowerCase().includes(inputName)) ? 'error' : '';
+}
+
   render() {
-    const {username, email, password, passwordConfirmation} = this.state;
+    const {username, email, password, passwordConfirmation, loading, errors} = this.state;
     return (
       <Grid textAlign="center" verticalAlign="middle" className="app">
         <Grid.Column style={{ maxWidth: 450 }}>
@@ -112,6 +120,7 @@ class Register extends React.Component {
                 value={email}
                 onChange={this.handleChange}
                 type="email"
+                className={this.handleInputError(errors, 'email')}
               />
 
               <Form.Input
@@ -123,6 +132,7 @@ class Register extends React.Component {
                 value={password}
                 onChange={this.handleChange}
                 type="password"
+                className={this.handleInputError(errors, 'password')}
               />
 
               <Form.Input
@@ -134,9 +144,10 @@ class Register extends React.Component {
                 value={passwordConfirmation}
                 onChange={this.handleChange}
                 type="password"
+                className={this.handleInputError(errors, 'password')}
               />
 
-              <Button color="blue" fluid size="large">
+              <Button disabled={loading} className={loading ? 'loading':''} color="blue" fluid size="large">
                 Submit
               </Button>
             </Segment>
