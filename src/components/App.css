@@ -6,9 +6,14 @@ body,
   padding: 1em;
 }
 
+/* SidePanel.js */
+.menu {
+  padding-bottom: 2em;
+}
+
 /* Messages.js */
 .messages {
-  height: 390px;
+  height: 62vh;
   overflow-y: scroll;
 }
 
